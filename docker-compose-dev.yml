@@ -1,0 +1,15 @@
+version: "3.5"
+
+services:
+  api-01:
+    build:
+      context: ./
+    ports:
+      - "9999:9999"
+    environment:
+      - PORT=9999
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "550MB"

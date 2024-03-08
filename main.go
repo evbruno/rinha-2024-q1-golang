@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +29,16 @@ var accounts = map[int]*Account{}
 func main() {
 	addSampleAccounts()
 	http.HandleFunc("/clientes/", clientesHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	// http server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	host := fmt.Sprintf(":%v", port)
+	log.Println("Starting server", host)
+	log.Fatal(http.ListenAndServe(host, nil))
 }
 
 func clientesHandler(w http.ResponseWriter, r *http.Request) {

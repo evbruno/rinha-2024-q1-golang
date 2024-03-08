@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,7 +25,10 @@ type Account struct {
 	Transacoes []Transaction
 }
 
-var accounts = map[int]*Account{}
+var (
+	accounts = make(map[int]*Account)
+	mutexes  = make(map[int]*sync.Mutex)
+)
 
 func main() {
 	addSampleAccounts()
@@ -66,11 +70,16 @@ func clientesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePost(w http.ResponseWriter, r *http.Request, id int) {
-	account, ok := accounts[id]
+	lock, ok := mutexes[id]
 	if !ok {
 		http.Error(w, "Account not found", http.StatusNotFound)
 		return
 	}
+
+	lock.Lock()
+	defer lock.Unlock()
+
+	account := accounts[id]
 
 	var transaction Transaction
 	err := json.NewDecoder(r.Body).Decode(&transaction)
@@ -133,7 +142,7 @@ func handleGet(w http.ResponseWriter, r *http.Request, id int) {
 			"data_extrato": time.Now().Format(time.RFC3339),
 			"limite":       account.Limite,
 		},
-		"transacoes": account.Transacoes[:take],
+		"ultimas_transacoes": account.Transacoes[:take],
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -149,6 +158,7 @@ func addAccount(id int, limite int, saldo int) {
 		Transacoes: []Transaction{},
 	}
 	accounts[id] = account
+	mutexes[id] = &sync.Mutex{}
 }
 
 func addSampleAccounts() {

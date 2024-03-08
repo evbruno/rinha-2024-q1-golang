@@ -40,9 +40,14 @@ func main() {
 		port = "8080"
 	}
 
-	host := fmt.Sprintf(":%v", port)
-	log.Println("Starting server", host)
-	log.Fatal(http.ListenAndServe(host, nil))
+	hostname, error := os.Hostname()
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	addr := fmt.Sprintf(":%v", port)
+	log.Println("Starting server", addr, hostname)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 func clientesHandler(w http.ResponseWriter, r *http.Request) {

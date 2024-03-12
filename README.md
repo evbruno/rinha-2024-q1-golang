@@ -20,22 +20,20 @@
 ```
 ================================================================================
 ---- Global Information --------------------------------------------------------
-> request count                                      61503 (OK=61199  KO=304   )
-> min response time                                      0 (OK=0      KO=10000 )
-> max response time                                  28166 (OK=28166  KO=10244 )
-> mean response time                                   805 (OK=759    KO=10023 )
-> std deviation                                       1607 (OK=1473   KO=57    )
-> response time 50th percentile                        178 (OK=175    KO=10002 )
-> response time 75th percentile                        944 (OK=928    KO=10005 )
-> response time 95th percentile                       3339 (OK=3056   KO=10173 )
-> response time 99th percentile                       7938 (OK=7518   KO=10225 )
-> mean requests/sec                                229.489 (OK=228.354 KO=1.134 )
+> request count                                      61503 (OK=61503  KO=0     )
+> min response time                                      2 (OK=2      KO=-     )
+> max response time                                    585 (OK=585    KO=-     )
+> mean response time                                    11 (OK=11     KO=-     )
+> std deviation                                         25 (OK=25     KO=-     )
+> response time 50th percentile                          4 (OK=4      KO=-     )
+> response time 75th percentile                          5 (OK=5      KO=-     )
+> response time 95th percentile                         53 (OK=54     KO=-     )
+> response time 99th percentile                        119 (OK=119    KO=-     )
+> mean requests/sec                                251.033 (OK=251.033 KO=-     )
 ---- Response Time Distribution ------------------------------------------------
-> t < 800 ms                                         43991 ( 72%)
-> 800 ms <= t < 1200 ms                               4625 (  8%)
-> t >= 1200 ms                                       12583 ( 20%)
-> failed                                               304 (  0%)
----- Errors --------------------------------------------------------------------
-> j.i.IOException: Premature close                                  304 (100.0%)
+> t < 800 ms                                         61503 (100%)
+> 800 ms <= t < 1200 ms                                  0 (  0%)
+> t >= 1200 ms                                           0 (  0%)
+> failed                                                 0 (  0%)
 ================================================================================
 ```

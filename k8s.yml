@@ -1,0 +1,161 @@
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-01
+  labels:
+    app: api-01
+spec:
+  ports:
+  - port: 8080
+    name: web
+    targetPort: 8080
+  selector:
+    app: api-01
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-01
+  template:
+    metadata:
+      labels:
+        app: api-01
+    spec:
+      hostname: api-01
+      containers:
+        - name: api
+          image: educhaos/rinha-2024-q1:latest
+          resources:
+            limits:
+              cpu: 0.7
+              memory: 265M
+          ports:
+          - containerPort: 8080
+            name: web
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-02
+  labels:
+    app: api-02
+spec:
+  ports:
+  - port: 8080
+    name: web
+    targetPort: 8080
+  selector:
+    app: api-02
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-02
+  template:
+    metadata:
+      labels:
+        app: api-02
+    spec:
+      hostname: api-02
+      containers:
+        - name: api
+          image: educhaos/rinha-2024-q1:latest
+          resources:
+            limits:
+              cpu: 0.7
+              memory: 265M
+          ports:
+          - containerPort: 8080
+            name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+    - name: "nginx-port"
+      port: 9999
+      targetPort: 9999
+  selector:
+    app: nginx
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    worker_rlimit_nofile 5000;
+    worker_processes auto;
+
+    events {
+        worker_connections 512;
+        use epoll;
+    }
+
+    http {
+        access_log off;
+        sendfile   on;
+
+        upstream api {
+            hash $server_id;
+            server api-01:8080;
+            server api-02:8080;
+        }
+
+        server {
+            listen 9999;
+
+            location ~ /clientes/(\d+)/*/ {
+                set $server_id $1;
+                proxy_pass http://api;
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        ports:
+          - containerPort: 9999
+        resources:
+          limits:
+            cpu: 100m
+            memory: "20971520"
+        volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      restartPolicy: Always
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
